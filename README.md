@@ -319,7 +319,8 @@ Edit the visualization script ([bin/visualize_tree.py](bin/visualize_tree.py)) t
 ## Citation
 
 If you use this pipeline, please cite:
-- **BEAST 2**: Bouckaert et al. (2019) BEAST 2.5: An advanced software platform for Bayesian evolutionary analysis. PLoS Comp Biol 15(4): e1006650.
+- **BEAST**: Drummond AJ, Rambaut A (2007) BEAST: Bayesian evolutionary analysis by sampling trees. BMC Evolutionary Biology 7:214.
+- **BEAST X**: Suchard MA, et al. (2018) Bayesian phylogenetic and phylodynamic data integration using BEAST 1.10. Virus Evolution 4(1): vey016.
 - **Nextflow**: Di Tommaso et al. (2017) Nextflow enables reproducible computational workflows. Nature Biotechnology 35, 316–319.
 - **Baltic**: https://github.com/evogytis/baltic
 

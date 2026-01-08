@@ -51,3 +51,4 @@ wheels/
 # Temporary files
 *.tmp
 *.temp
+example_data/Kasai-Bulape-53genomes.headers.masked.aln.fasta
