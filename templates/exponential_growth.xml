@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- BEAST X XML Template for use with beastgen -->
+<!-- BEAST X v10.5.0 / v1.10.5 format -->
+<!-- This template generates a BEAST X analysis with:
+     - HKY substitution model
+     - Strict molecular clock
+     - Exponential growth coalescent prior
+     - Dated tips
+-->
+<beast version="1.10.5">
+
+    <!-- Data section will be populated by beastgen from FASTA file -->
+    <taxa id="taxa">
+        <!-- Taxa will be populated from alignment -->
+    </taxa>
+
+    <alignment id="alignment" dataType="nucleotide">
+        <!-- Sequences will be populated by beastgen from FASTA file -->
+    </alignment>
+
+    <!-- Dated tips - dates will be extracted from sequence names -->
+    <tipDates>
+        <taxa idref="taxa"/>
+    </tipDates>
+
+    <!-- The HKY substitution model -->
+    <hkySiteModel id="siteModel">
+        <frequencies>
+            <frequencyModel id="freqModel" dataType="nucleotide">
+                <alignment idref="alignment"/>
+                <frequencies>
+                    <parameter id="frequencies" value="0.25 0.25 0.25 0.25"/>
+                </frequencies>
+            </frequencyModel>
+        </frequencies>
+        <kappa>
+            <parameter id="kappa" value="2.0" lower="0.0"/>
+        </kappa>
+    </hkySiteModel>
+
+    <!-- Strict clock model -->
+    <strictClockBranchRates id="branchRates">
+        <rate>
+            <parameter id="clock.rate" value="1.0" lower="0.0"/>
+        </rate>
+    </strictClockBranchRates>
+
+    <!-- Exponential growth coalescent tree prior -->
+    <coalescentTree id="startingTree">
+        <taxa idref="taxa"/>
+        <exponentialGrowth idref="exponential"/>
+    </coalescentTree>
+
+    <exponentialGrowth id="exponential" units="years">
+        <populationSize>
+            <parameter id="exponential.popSize" value="1.0" lower="0.0"/>
+        </populationSize>
+        <growthRate>
+            <parameter id="exponential.growthRate" value="0.0"/>
+        </growthRate>
+    </exponentialGrowth>
+
+    <!-- Tree likelihood -->
+    <treeLikelihood id="treeLikelihood">
+        <alignment idref="alignment"/>
+        <treeModel idref="treeModel"/>
+        <siteModel idref="siteModel"/>
+        <strictClockBranchRates idref="branchRates"/>
+    </treeLikelihood>
+
+    <treeModel id="treeModel">
+        <coalescentTree idref="startingTree"/>
+        <rootHeight>
+            <parameter id="treeModel.rootHeight"/>
+        </rootHeight>
+        <nodeHeights internalNodes="true">
+            <parameter id="treeModel.internalNodeHeights"/>
+        </nodeHeights>
+        <nodeHeights internalNodes="true" rootNode="true">
+            <parameter id="treeModel.allInternalNodeHeights"/>
+        </nodeHeights>
+    </treeModel>
+
+    <!-- Coalescent prior -->
+    <coalescentLikelihood id="coalescent">
+        <model>
+            <exponentialGrowth idref="exponential"/>
+        </model>
+        <populationTree>
+            <treeModel idref="treeModel"/>
+        </populationTree>
+    </coalescentLikelihood>
+
+    <!-- PRIORS -->
+    <prior id="prior">
+        <exponentialPrior mean="0.333" offset="0.0">
+            <parameter idref="exponential.popSize"/>
+        </exponentialPrior>
+        
+        <laplacePrior mean="0.0" scale="30.701135">
+            <parameter idref="exponential.growthRate"/>
+        </laplacePrior>
+        
+        <logNormalPrior mean="1.0" stdev="1.25" offset="0.0" meanInRealSpace="true">
+            <parameter idref="kappa"/>
+        </logNormalPrior>
+        
+        <uniformPrior lower="0.0" upper="1.0">
+            <parameter idref="clock.rate"/>
+        </uniformPrior>
+    </prior>
+
+    <!-- OPERATORS -->
+    <operators id="operators" optimizationSchedule="log">
+        <scaleOperator scaleFactor="0.75" weight="3">
+            <parameter idref="exponential.popSize"/>
+        </scaleOperator>
+        
+        <randomWalkOperator windowSize="1.0" weight="3">
+            <parameter idref="exponential.growthRate"/>
+        </randomWalkOperator>
+        
+        <scaleOperator scaleFactor="0.5" weight="0.1">
+            <parameter idref="kappa"/>
+        </scaleOperator>
+        
+        <deltaExchange delta="0.01" weight="0.1">
+            <parameter idref="frequencies"/>
+        </deltaExchange>
+        
+        <scaleOperator scaleFactor="0.75" weight="3">
+            <parameter idref="clock.rate"/>
+        </scaleOperator>
+        
+        <upDownOperator scaleFactor="0.75" weight="3">
+            <up>
+                <parameter idref="clock.rate"/>
+            </up>
+            <down>
+                <parameter idref="treeModel.allInternalNodeHeights"/>
+            </down>
+        </upDownOperator>
+        
+        <scaleOperator scaleFactor="0.5" weight="3">
+            <parameter idref="treeModel.rootHeight"/>
+        </scaleOperator>
+        
+        <uniformOperator weight="30">
+            <parameter idref="treeModel.internalNodeHeights"/>
+        </uniformOperator>
+        
+        <subtreeSlide size="1.0" gaussian="true" weight="15">
+            <treeModel idref="treeModel"/>
+        </subtreeSlide>
+        
+        <narrowExchange weight="15">
+            <treeModel idref="treeModel"/>
+        </narrowExchange>
+        
+        <wideExchange weight="3">
+            <treeModel idref="treeModel"/>
+        </wideExchange>
+        
+        <wilsonBalding weight="3">
+            <treeModel idref="treeModel"/>
+        </wilsonBalding>
+    </operators>
+
+    <!-- MCMC -->
+    <mcmc id="mcmc" chainLength="$(chain_length=10000000)" autoOptimize="true">
+    <!-- MCMC -->
+    <mcmc id="mcmc" chainLength="$(chain_length=10000000)" autoOptimize="true">
+        <posterior id="posterior">
+            <prior idref="prior"/>
+            <likelihood id="likelihood">
+                <treeLikelihood idref="treeLikelihood"/>
+                <coalescentLikelihood idref="coalescent"/>
+            </likelihood>
+        </posterior>
+        
+        <operators idref="operators"/>
+
+        <!-- write log to screen -->
+        <log id="screenLog" logEvery="$(screen_every=10000)">
+            <column label="Posterior" dp="4" width="12">
+                <posterior idref="posterior"/>
+            </column>
+            <column label="Prior" dp="4" width="12">
+                <prior idref="prior"/>
+            </column>
+            <column label="Likelihood" dp="4" width="12">
+                <likelihood idref="likelihood"/>
+            </column>
+            <column label="rootHeight" sf="6" width="12">
+                <parameter idref="treeModel.rootHeight"/>
+            </column>
+            <column label="clock.rate" sf="6" width="12">
+                <parameter idref="clock.rate"/>
+            </column>
+        </log>
+
+        <!-- write log to file -->
+        <log id="fileLog" logEvery="$(log_every=1000)" fileName="beast_analysis.log" overwrite="false">
+            <posterior idref="posterior"/>
+            <prior idref="prior"/>
+            <likelihood idref="likelihood"/>
+            <parameter idref="treeModel.rootHeight"/>
+            <parameter idref="exponential.popSize"/>
+            <parameter idref="exponential.growthRate"/>
+            <parameter idref="kappa"/>
+            <parameter idref="frequencies"/>
+            <parameter idref="clock.rate"/>
+            <coalescentLikelihood idref="coalescent"/>
+            <treeLikelihood idref="treeLikelihood"/>
+            <tmrcaStatistic id="age.root" name="age(root)">
+                <mrca>
+                    <taxa idref="taxa"/>
+                </mrca>
+                <treeModel idref="treeModel"/>
+            </tmrcaStatistic>
+        </log>
+
+        <!-- write tree log to file -->
+        <logTree id="treeFileLog" logEvery="$(log_every=1000)" nexusFormat="true" fileName="beast_analysis.trees" sortTranslationTable="true">
+            <treeModel idref="treeModel"/>
+            <posterior idref="posterior"/>
+        </logTree>
+
+    </mcmc>
+
+    <report>
+        <property name="timer">
+            <mcmc idref="mcmc"/>
+        </property>
+    </report>
+
+</beast>

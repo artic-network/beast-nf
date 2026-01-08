@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://github.com/ARTICnetwork/beast-nf/nextflow_schema.json",
+  "title": "BEAST-NF Pipeline Parameters",
+  "description": "Bayesian phylogenetic analysis pipeline using BEAST X with exponential growth coalescent model",
+  "type": "object",
+  "definitions": {
+    "input_output_options": {
+      "title": "Input/Output Options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Define where the pipeline should find input data and save output data.",
+      "required": ["input", "template"],
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "pattern": "^\\S+\\.f(a|asta)$",
+          "description": "Path to aligned FASTA file with dated sequences",
+          "help_text": "Sequence names must contain dates in format: name|YYYY-MM-DD, name_YYYY-MM-DD, name|YYYY, or name_YYYY",
+          "fa_icon": "fas fa-file-alt"
+        },
+        "template": {
+          "type": "string",
+          "format": "file-path",
+          "mimetype": "text/xml",
+          "pattern": "^\\S+\\.xml$",
+          "description": "Path to BEAST XML template file for beastgen",
+          "help_text": "Template file should contain variable placeholders for beastgen. See BEAST X documentation for template format.",
+          "fa_icon": "fas fa-file-code"
+        },
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "The output directory where results will be saved",
+          "default": "results",
+          "fa_icon": "fas fa-folder-open"
+        },
+        "prefix": {
+          "type": "string",
+          "description": "Prefix for output files",
+          "default": "beast_analysis",
+          "fa_icon": "fas fa-tag"
+        }
+      }
+    },
+    "beast_parameters": {
+      "title": "BEAST Analysis Parameters",
+      "type": "object",
+      "description": "Parameters for BEAST X MCMC analysis",
+      "fa_icon": "fas fa-dna",
+      "properties": {
+        "chain_length": {
+          "type": "integer",
+          "default": 10000000,
+          "minimum": 1000,
+          "description": "Length of MCMC chain",
+          "help_text": "Number of MCMC iterations. Longer chains give more accurate results but take more time. Typical values: 10M-100M",
+          "fa_icon": "fas fa-link"
+        },
+        "log_every": {
+          "type": "integer",
+          "default": 1000,
+          "minimum": 1,
+          "description": "Sampling frequency for log files",
+          "help_text": "How often to sample parameters and trees (every N iterations)",
+          "fa_icon": "fas fa-chart-line"
+        },
+        "screen_every": {
+          "type": "integer",
+          "default": 10000,
+          "minimum": 1,
+          "description": "Frequency of screen output",
+          "help_text": "How often to print progress to screen (every N iterations)",
+          "fa_icon": "fas fa-tv"
+        }
+      }
+    },
+    "tree_annotation_parameters": {
+      "title": "Tree Annotation Parameters",
+      "type": "object",
+      "description": "Parameters for TreeAnnotator",
+      "fa_icon": "fas fa-tree",
+      "properties": {
+        "burnin": {
+          "type": "integer",
+          "default": 10,
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Burn-in percentage for TreeAnnotator",
+          "help_text": "Percentage of samples to discard as burn-in. Typical values: 10-50%",
+          "fa_icon": "fas fa-fire"
+        }
+      }
+    },
+    "computational_resources": {
+      "title": "Computational Resources",
+      "type": "object",
+      "description": "Resource limits for pipeline processes",
+      "fa_icon": "fas fa-server",
+      "properties": {
+        "max_cpus": {
+          "type": "integer",
+          "default": 4,
+          "minimum": 1,
+          "description": "Maximum number of CPUs for BEAST process",
+          "fa_icon": "fas fa-microchip"
+        },
+        "max_memory": {
+          "type": "string",
+          "default": "8.GB",
+          "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
+          "description": "Maximum memory for BEAST process",
+          "help_text": "Use format: 8.GB, 16.GB, etc.",
+          "fa_icon": "fas fa-memory"
+        },
+        "max_time": {
+          "type": "string",
+          "default": "48.h",
+          "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(s|m|h|d)$",
+          "description": "Maximum runtime for BEAST process",
+          "help_text": "Use format: 24.h, 2.d, etc.",
+          "fa_icon": "fas fa-clock"
+        }
+      }
+    },
+    "generic_options": {
+      "title": "Generic Options",
+      "type": "object",
+      "fa_icon": "fas fa-file-import",
+      "description": "Less common options for the pipeline",
+      "help_text": "These options are common to all nf-core pipelines and allow you to customize the execution",
+      "properties": {
+        "help": {
+          "type": "boolean",
+          "description": "Display help text",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "version": {
+          "type": "boolean",
+          "description": "Display version and exit",
+          "fa_icon": "fas fa-info-circle",
+          "hidden": true
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/definitions/input_output_options"
+    },
+    {
+      "$ref": "#/definitions/beast_parameters"
+    },
+    {
+      "$ref": "#/definitions/tree_annotation_parameters"
+    },
+    {
+      "$ref": "#/definitions/computational_resources"
+    },
+    {
+      "$ref": "#/definitions/generic_options"
+    }
+  ],
+  "properties": {
+    "input": {
+      "$ref": "#/definitions/input_output_options/properties/input"
+    },
+    "template": {
+      "$ref": "#/definitions/input_output_options/properties/template"
+    },
+    "outdir": {
+      "$ref": "#/definitions/input_output_options/properties/outdir"
+    },
+    "prefix": {
+      "$ref": "#/definitions/input_output_options/properties/prefix"
+    },
+    "chain_length": {
+      "$ref": "#/definitions/beast_parameters/properties/chain_length"
+    },
+    "log_every": {
+      "$ref": "#/definitions/beast_parameters/properties/log_every"
+    },
+    "screen_every": {
+      "$ref": "#/definitions/beast_parameters/properties/screen_every"
+    },
+    "burnin": {
+      "$ref": "#/definitions/tree_annotation_parameters/properties/burnin"
+    },
+    "max_cpus": {
+      "$ref": "#/definitions/computational_resources/properties/max_cpus"
+    },
+    "max_memory": {
+      "$ref": "#/definitions/computational_resources/properties/max_memory"
+    },
+    "max_time": {
+      "$ref": "#/definitions/computational_resources/properties/max_time"
+    }
+  },
+  "required": ["input", "template"]
+}
